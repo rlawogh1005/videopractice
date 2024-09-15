@@ -3,10 +3,10 @@
 <button (click)="getData()">데이터 부르기</button>
 
 <h1> Steve Jobs introduces first iphone</h1>
-<video #videoPlayer width="600" controls [src]="videoUrl"></video>
-
-
-
+<!-- <video #videoPlayer width="600" controls [src]="videoUrl"></video> -->
+<!-- <app-video-player [src]="videoUrl"></app-video-player> -->
+<video #videoPlayer *ngIf="videoUrl" [src]="videoUrl" controls></video>
+<p>Progress: {{progress}}%</p>
 
 
 <!-- videourl = 'http://localhost:3002/courses/WEB-CLASS/docNames/Front-end-1st/courseDocs/download/e5923fa7-e4b7-4832-907b-e84aeca1fc5d-videoplayback.mp4'; -->
