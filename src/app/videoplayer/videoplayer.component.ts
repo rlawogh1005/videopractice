@@ -1,70 +1,36 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-video-player',
   template: `
-    <div *ngIf="isLoading">Loading: {{ progress }}%</div>
-    <video *ngIf="videoUrl" controls>
-      <source [src]="videoUrl" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-    <div *ngIf="error">{{ error }}</div>
-  `
+    <div>
+      <h1>Video Streaming</h1>
+      <progress [value]="progress" max="100"></progress>
+      <video #videoElement controls>
+        <source [src]="videoSrc" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  `,
+  styles: []
 })
-export class VideoPlayerComponent implements OnInit, OnDestroy {
-  videoUrl: string | null = null;
-  isLoading = false;
+export class VideoPlayerComponent implements OnInit {
   progress = 0;
-  error: string | null = null;
-  private videoSubscription: Subscription | null = null;
+  videoSrc: string | ArrayBuffer | null = null;
 
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
-    this.getVideoData();
-  }
-
-  ngOnDestroy() {
-    this.cleanUp();
-  }
-
-  getVideoData() {
-    this.isLoading = true;
-    this.error = null;
-    let chunks: Uint8Array[] = [];
-
-    this.videoSubscription = this.apiService.getVideo().subscribe({
+    this.apiService.getVideo().subscribe({
       next: ({ data, progress }) => {
         this.progress = progress;
-        if (data.length > 0) {
-          chunks.push(data);
-        }
-        if (progress === 100) {
-          const blob = new Blob(chunks, { type: 'video/mp4' });
-          this.videoUrl = URL.createObjectURL(blob);
-          this.isLoading = false;
-          chunks = []; // 메모리 해제
+        if (data) {
+          const blob = new Blob([data], { type: 'video/mp4' });
+          this.videoSrc = URL.createObjectURL(blob);
         }
       },
-      error: (err) => {
-        console.error('비디오를 불러오는데 실패했습니다.', err);
-        this.error = '비디오를 불러오는데 실패했습니다. 나중에 다시 시도해 주세요.';
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      }
+      error: (err) => console.error('Video streaming error', err)
     });
-  }
-
-  private cleanUp() {
-    if (this.videoSubscription) {
-      this.videoSubscription.unsubscribe();
-    }
-    if (this.videoUrl) {
-      URL.revokeObjectURL(this.videoUrl);
-    }
   }
 }
