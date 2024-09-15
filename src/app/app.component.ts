@@ -1,55 +1,40 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ApiService } from './api.service';
-import { lastValueFrom } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-  @ViewChild('videoPlayer') videoPlayer: any;
+export class AppComponent implements OnInit {
+  @ViewChild('videoPlayer') videoPlayer!: ElementRef<HTMLVideoElement>;
   videoUrl: string | null = null;
+  progress: number = 0; // 진행 상황을 추적하기 위한 프로퍼티
   title = 'client';
-  constructor(private apiService: ApiService){}
-  async getData() {
-    try {
-      const blob = await lastValueFrom(this.apiService.getOneData());
-    
-      console.log(blob.type);
-      // Create a URL for the blob and log it, or use it as needed (e.g., for an image src or download)
-      const url = window.URL.createObjectURL(blob);
-      console.log(url);
 
-      // Example: Create a link and simulate a click to download the image
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'image.png';
-      a.click();
+  constructor(private apiService: ApiService) {}
 
-      // Optionally, you can revoke the URL to free up resources
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('에러 ㅋ', error);
-    }
+  ngOnInit() {
+    this.getVideoData(); // 컴포넌트가 초기화될 때 비디오 데이터를 로드
   }
-
-  // async getVideoData() {
-  //   try {
-  //     const blob = await lastValueFrom(this.apiService.getVideo()); // Blob 데이터를 가져옴
-  //     this.videoUrl = window.URL.createObjectURL(blob); // Blob으로부터 URL 생성
-  //   } catch (error) {
-  //     console.error('비디오를 불러오는데 실패했습니다.', error);
-  //   }
-  // }
-  // ngOnInit() {
-  //   this.getVideoData(); // 컴포넌트가 초기화될 때 비디오 데이터를 로드
-  // }
-  // RequestVideo() {
-  //   this.http.get()
-  // }
-
-
-  
+  getData() {
+    // 데이터 호출 로직
+    console.log("데이터를 불러옵니다.");
+  }
+  getVideoData() {
+    this.apiService.getVideo().subscribe({
+      next: ({ data, progress }) => {
+        this.progress = progress;
+        if (data && data.length > 0) {
+          const blob = new Blob([data], { type: 'video/mp4' });
+          this.videoUrl = URL.createObjectURL(blob);
+          if (this.videoPlayer && this.videoPlayer.nativeElement) {
+            this.videoPlayer.nativeElement.src = this.videoUrl;
+          }
+        }
+      },
+      error: (error) => console.error('비디오를 불러오는데 실패했습니다.', error),
+      complete: () => console.log('비디오 로딩 완료')
+    });
+  }
 }
