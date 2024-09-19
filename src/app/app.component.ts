@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { ApiService } from './video.service';
+import { ApiService } from './services/video.service';
 
 @Component({
   selector: 'app-root',
