@@ -8,11 +8,12 @@ import { map, scan } from 'rxjs/operators';
 })
 export class ApiService {
 
-  private videoUrl = 'http://localhost:3002/courses/웹개발반/DocNames/코딩테스트/courseDocs/download/40f3636d-17c1-4f66-8156-178b8ce67d36-videoplayback.mp4';
+  private videoUrl = 'http://localhost:3002/courses/웹개발반/프론트엔드 2/video/stream';
   private url = 'http://localhost:3002';
 
   constructor(private http: HttpClient) { }
 
+  // courses 연결
   getData(): Observable<any> {
     return this.http.get(`${this.url}/courses`);
   }

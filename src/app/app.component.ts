@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { ApiService } from './api.service';
+import { ApiService } from './video.service';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +12,9 @@ export class AppComponent implements OnInit {
   progress: number = 0; // 진행 상황을 추적하기 위한 프로퍼티
   title = 'client';
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService
+  ) {}
 
   ngOnInit() {
     this.getVideoData(); // 컴포넌트가 초기화될 때 비디오 데이터를 로드
